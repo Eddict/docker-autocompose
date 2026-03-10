@@ -4,8 +4,8 @@ LABEL org.opencontainers.image.source=https://github.com/Red5d/docker-autocompos
 # Install Poetry and Node.js
 RUN apk add --no-cache poetry nodejs npm
 
-# Install composerize globally
-RUN npm install -g composerize@latest --omit=dev --no-audit --no-fund && npm cache clean --force
+# Install decomposerize globally
+RUN npm install -g decomposerize@latest --omit=dev --no-audit --no-fund && npm cache clean --force
 
 WORKDIR /usr/src/app
 
