@@ -8,6 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_NAME: combined
   PLATFORMS: linux/amd64
   BUILDX_CACHE: /tmp/.buildx-cache
 
@@ -29,7 +30,7 @@ jobs:
         run: |
           REPO=$CI_REPOSITORY_NAME
           OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
-          DOCKER_IMAGE=${OWNER}/${REPO}
+          DOCKER_IMAGE=${OWNER}/${IMAGE_NAME}
           if [ "$CI_REF_NAME" == "main" ];then VERSION=latest;fi
           if [ "$CI_REF_NAME" == "dev" ];then VERSION=mightly;fi
           if [ "$CI_REF_NAME" == "dockserver" ];then VERSION=dockserver;fi
