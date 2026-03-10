@@ -1,0 +1,23 @@
+name: 'Docker Metadata Prep'
+description: 'Prepare Docker image tags and metadata for GitHub Actions workflows.'
+inputs:
+  image_name:
+    description: 'The image name (without owner)'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      id: prep
+      run: |
+        OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+        DOCKER_IMAGE=${OWNER}/${{ inputs.image_name }}
+        if [ "${{ github.ref_name }}" == "main" ];then VERSION=latest;fi
+        if [ "${{ github.ref_name }}" == "dev" ];then VERSION=mightly;fi
+        if [ "${{ github.ref_name }}" == "dockserver" ];then VERSION=dockserver;fi
+        if [ -z "$VERSION" ];then VERSION=${{ github.ref_name }};fi
+        TAGS="${DOCKER_IMAGE}:${VERSION}"
+        echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+        echo "title=${GITHUB_REPOSITORY}" >> $GITHUB_OUTPUT
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT

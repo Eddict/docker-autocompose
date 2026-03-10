@@ -19,27 +19,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      - uses: FranzDiebold/github-env-vars-action@v2
-      - name: Print environment variables
-        run: |
-          echo "CI_REPOSITORY_NAME=$CI_REPOSITORY_NAME"
-
       - name: Prepare Container Registry (${{ env.REGISTRY }}) Metadata
         id: prep
-        run: |
-          REPO=$CI_REPOSITORY_NAME
-          OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
-          DOCKER_IMAGE=${OWNER}/${IMAGE_NAME}
-          if [ "$CI_REF_NAME" == "main" ];then VERSION=latest;fi
-          if [ "$CI_REF_NAME" == "dev" ];then VERSION=mightly;fi
-          if [ "$CI_REF_NAME" == "dockserver" ];then VERSION=dockserver;fi
-          if [ -z "$VERSION" ];then VERSION=$CI_REF_NAME;fi
-          TAGS="${DOCKER_IMAGE}:${VERSION}"
-          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
-          echo "title=${GITHUB_REPOSITORY}" >> $GITHUB_OUTPUT
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/docker-metadata
 
       - name: Set up Docker Buildx
         id: buildx
