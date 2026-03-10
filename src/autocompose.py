@@ -72,6 +72,13 @@ def main():
         help="Include all active containers",
     )
     parser.add_argument(
+        "-v",
+        "--version",
+        type=int,
+        default=3,
+        help="Compose file version (1 or 3)",
+    )
+    parser.add_argument(
         "cnames",
         nargs="*",
         type=str,
@@ -133,7 +140,7 @@ def render(struct, args, networks, volumes):
     if args.version == 1:
         pyaml.p(OrderedDict(struct))
     else:
-        ans = {"version": '3.6', "services": struct}
+        ans = {"services": struct}
 
         if networks is not None:
             ans["networks"] = networks
