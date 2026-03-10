@@ -72,13 +72,6 @@ def main():
         help="Include all active containers",
     )
     parser.add_argument(
-        "-v",
-        "--version",
-        type=int,
-        default=3,
-        help="Compose file version (1 or 3)",
-    )
-    parser.add_argument(
         "cnames",
         nargs="*",
         type=str,
