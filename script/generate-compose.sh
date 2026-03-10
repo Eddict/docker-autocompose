@@ -2,11 +2,6 @@
 
 set -e
 
-# Set DEBUG=true for debug output
-DEBUG=${DEBUG:-false}
-# Set DOCKER_IMAGE to override the default image used for autocompose and decomposerize
-DOCKER_IMAGE=${DOCKER_IMAGE:-"ghcr.io/eddict/combined:latest"}
-
 # Color codes
 RED="\033[0;31m"
 GREEN="\033[0;32m"
@@ -27,6 +22,36 @@ debug_echo() {
 error_echo() {
   echo -e "${RED}[ERROR]${NC} $1" >&2
 }
+
+# Set DEBUG=true for debug output (default is false)
+DEBUG=${DEBUG:-false}
+# Set DOCKER_IMAGE to override the default image used for autocompose and decomposerize
+DOCKER_IMAGE=${DOCKER_IMAGE:-"ghcr.io/eddict/combined:latest"}
+# Set OUTPUT_SCRIPT=true to enable saving decomposerize output as a shell script (default is false)
+OUTPUT_SCRIPT=${OUTPUT_SCRIPT:-false}
+# Optional: control decomposerize script output and other settings
+# Use --script to enable saving the decomposerize output as a shell script (default is disabled)
+# Use --docker-image <image> to override the Docker image
+# Use --debug to enable debug output
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --script)
+      OUTPUT_SCRIPT=true
+      shift
+      ;;
+    --docker-image)
+      DOCKER_IMAGE="$2"
+      shift 2
+      ;;
+    --debug)
+      DEBUG=true
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
 
 # Print effective config at start
 debug_echo "Effective DOCKER_IMAGE: $DOCKER_IMAGE"
@@ -56,8 +81,13 @@ for container in $containers; do
     info_echo "$container/docker-compose.yaml is valid."
     debug_echo "Validation for $container succeeded"
 
-    # Run decomposerize on the generated YAML
-    docker run --rm -i "$DOCKER_IMAGE" decomposerize < "$container/docker-compose.yaml" > "$container/docker-run.sh"
+    # Run decomposerize on the generated YAML if script output is enabled
+    if [ "$OUTPUT_SCRIPT" = true ]; then
+      docker run --rm -i "$DOCKER_IMAGE" decomposerize < "$container/docker-compose.yaml" > "$container/docker-run.sh"
+      debug_echo "Generated $container/docker-run.sh"
+    else
+      debug_echo "Skipped script output for $container"
+    fi
   else
     error_echo "$container/docker-compose.yaml has errors!"
     debug_echo "Validation for $container failed"
