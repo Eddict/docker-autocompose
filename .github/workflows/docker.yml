@@ -5,6 +5,7 @@ on:
       - 'dependabot/**'
   schedule:
     - cron: '0 5 * * *'
+  workflow_dispatch:
 
 jobs:
   GHRC:
