@@ -29,10 +29,10 @@ jobs:
           if [ "$CI_REF_NAME" == "dev" ];then VERSION=mightly;fi
           if [ "$CI_REF_NAME" == "dockserver" ];then VERSION=dockserver;fi
           TAGS="${DOCKER_IMAGE}:${VERSION}"
-          echo ::set-output name=tags::${TAGS}
-          echo ::set-output name=title::${GITHUB_REPOSITORY}
-          echo ::set-output name=version::${VERSION}
-          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+          echo "title=${GITHUB_REPOSITORY}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
