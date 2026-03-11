@@ -96,6 +96,12 @@ def main():
         type=str,
         help="Filter containers by regex",
     )
+
+    parser.add_argument(
+        "--minimal",
+        action="store_true",
+        help="Prune default and boilerplate values for a minimal compose file",
+    )
     args = parser.parse_args()
 
     container_names = args.cnames
@@ -314,10 +320,45 @@ def generate(cname, createvolumes=False):
         for idx, env_variable in enumerate(values["environment"]):
             values["environment"][idx] = shell_escape_string(env_variable)
 
+
+    # Compose defaults to prune in minimal mode
+    MINIMAL_DEFAULTS = {
+        "network_mode": "bridge",
+        "restart": "always",
+        "logging": {"driver": "json-file"},
+        "user": None,
+        "ipc": "private",
+        "tty": False,
+        "stdin_open": False,
+        "cap_drop": [],
+        "ulimits": {},
+    }
+
+    def is_minimal_default(key, value):
+        if key in MINIMAL_DEFAULTS:
+            # For dicts, check keys
+            if isinstance(MINIMAL_DEFAULTS[key], dict) and isinstance(value, dict):
+                for k, v in MINIMAL_DEFAULTS[key].items():
+                    if k in value and value[k] != v:
+                        return False
+                # All subkeys match default
+                return True
+            return value == MINIMAL_DEFAULTS[key]
+        return False
+
     # Iterate through values to finish building yaml dict.
+    import inspect
+    frame = inspect.currentframe().f_back
+    args_obj = frame.f_locals.get('args', None)
+    minimal = False
+    if args_obj and hasattr(args_obj, 'minimal'):
+        minimal = getattr(args_obj, 'minimal', False)
+
     for key in values:
         value = values[key]
         if value not in IGNORE_VALUES:
+            if minimal and is_minimal_default(key, value):
+                continue
             ct[key] = value
 
     return cfile, networks, volumes
