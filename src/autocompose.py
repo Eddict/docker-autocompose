@@ -396,6 +396,10 @@ def generate(cname, createvolumes=False):
     for key in values:
         value = values[key]
         if value not in IGNORE_VALUES:
+            # Always include 'image' field (Compose requires it)
+            if key == "image":
+                ct[key] = value
+                continue
             # If not including defaults, skip if value matches Compose minimal default or image default
             if not incl_defaults:
                 if is_minimal_default(key, value):
