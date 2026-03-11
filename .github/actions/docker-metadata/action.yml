@@ -4,6 +4,10 @@ inputs:
   image_name:
     description: 'The image name (without owner)'
     required: true
+  platforms:
+    description: 'Target platforms (comma-separated, e.g. linux/amd64,linux/arm64)'
+    required: false
+    default: linux/amd64
 outputs:
   tags:
     description: "Docker image tags"
@@ -33,7 +37,7 @@ runs:
       id: prep
       env:
         REGISTRY: ghcr.io
-        PLATFORMS: linux/amd64
+        PLATFORMS: ${{ inputs.platforms }}
         BUILDX_CACHE: /tmp/.buildx-cache
       run: |
         OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"

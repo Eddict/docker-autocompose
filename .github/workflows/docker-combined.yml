@@ -48,8 +48,7 @@ jobs:
         uses: ./.github/actions/docker-metadata
         with:
           image_name: combined
-        env:
-          PLATFORMS: ${{ steps.platforms.outputs.platforms || 'linux/amd64' }}
+          platforms: ${{ steps.platforms.outputs.platforms || 'linux/amd64' }}
 
       - name: Set up Docker Buildx
         id: buildx
