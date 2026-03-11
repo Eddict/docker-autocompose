@@ -3,6 +3,11 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'docker/autocompose/**'
+      - 'docker/decomposerize/**'
+      - '.github/workflows/docker-autocompose.yml'
+      - '.github/workflows/docker-decomposerize.yml'
   workflow_dispatch:
 
 jobs:

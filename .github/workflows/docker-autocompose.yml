@@ -3,6 +3,11 @@ on:
   push:
     branches-ignore:
       - 'dependabot/**'
+    paths-ignore:
+      - 'docker/combined/**'
+      - 'docker/decomposerize/**'
+      - '.github/workflows/docker-combined.yml'
+      - '.github/workflows/docker-decomposerize.yml'
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch:
