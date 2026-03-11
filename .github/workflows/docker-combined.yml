@@ -2,6 +2,9 @@ name: Build and Push Docker combined Image (autocompose + decomposerize)
 on:
   push:
     paths:
+      - 'src/autocompose.py'
+      - 'docker/autocompose/**'
+      - 'docker/decomposerize/**'
       - 'docker/combined/**'
       - '.github/workflows/docker-combined.yml'
   workflow_dispatch:
