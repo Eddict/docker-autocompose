@@ -31,3 +31,6 @@ runs:
         echo "title=${GITHUB_REPOSITORY}" >> $GITHUB_OUTPUT
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
         echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+        echo "buildx_cache=${{ env.BUILDX_CACHE }}" >> $GITHUB_OUTPUT
+        echo "registry=${{ env.REGISTRY }}" >> $GITHUB_OUTPUT
+        echo "platforms=${{ env.PLATFORMS }}" >> $GITHUB_OUTPUT
