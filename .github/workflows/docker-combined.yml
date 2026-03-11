@@ -1,3 +1,4 @@
+
 name: Build and Push Docker combined Image (autocompose + decomposerize)
 on:
   push:
@@ -8,6 +9,19 @@ on:
       - 'docker/combined/**'
       - '.github/workflows/docker-combined.yml'
   workflow_dispatch:
+    inputs:
+      amd64:
+        description: 'Enable linux/amd64 build'
+        type: boolean
+        default: false
+      armhf:
+        description: 'Enable linux/armhf build'
+        type: boolean
+        default: false
+      arm64:
+        description: 'Enable linux/arm64 build'
+        type: boolean
+        default: false
 
 jobs:
   build-and-push:
@@ -16,11 +30,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set platforms from workflow inputs
+        id: platforms
+        run: |
+          PLATFORMS=""
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            [[ "${{ github.event.inputs.amd64 }}" == "true" ]] && PLATFORMS+="linux/amd64,"
+            [[ "${{ github.event.inputs.armhf }}" == "true" ]] && PLATFORMS+="linux/armhf,"
+            [[ "${{ github.event.inputs.arm64 }}" == "true" ]] && PLATFORMS+="linux/arm64,"
+            PLATFORMS="${PLATFORMS%,}"
+          fi
+          echo "PLATFORMS=$PLATFORMS"
+          echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
+
       - name: Prepare Container Registry Metadata
         id: prep
         uses: ./.github/actions/docker-metadata
         with:
           image_name: combined
+        env:
+          PLATFORMS: ${{ steps.platforms.outputs.platforms || 'linux/amd64' }}
 
       - name: Set up Docker Buildx
         id: buildx
