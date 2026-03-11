@@ -322,6 +322,7 @@ def generate(cname, createvolumes=False):
 
 
     # Compose defaults to prune in minimal mode
+
     MINIMAL_DEFAULTS = {
         "network_mode": "bridge",
         "restart": "always",
@@ -332,16 +333,43 @@ def generate(cname, createvolumes=False):
         "stdin_open": False,
         "cap_drop": [],
         "ulimits": {},
+        "entrypoint": ["/opt/mssql/bin/launch_sqlservr.sh"],
+        "command": ["/opt/mssql/bin/sqlservr"],
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "labels": {},
     }
 
     def is_minimal_default(key, value):
+        # Prune empty lists/dicts/None
+        if value in (None, [], {}, ""):
+            return True
+        # Prune PATH env if default
+        if key == "environment" and isinstance(value, list):
+            # Remove empty and default PATH
+            envs = [v for v in value if v and not v.startswith("PATH=")]
+            if not envs:
+                return True
+        # Prune cap_drop if empty or matches default
+        if key == "cap_drop" and (not value or value == MINIMAL_DEFAULTS["cap_drop"]):
+            return True
+        # Prune entrypoint/command if matches known default
+        if key in ("entrypoint", "command") and value == MINIMAL_DEFAULTS.get(key):
+            return True
+        # Prune user if None or default
+        if key == "user" and (value is None or value == "mssql"):
+            return True
+        # Prune labels if empty or only OCI/image labels
+        if key == "labels" and (not value or all(k.startswith("org.opencontainers.image") for k in value.keys())):
+            return True
+        # Prune PATH in environment if default
+        if key == "environment" and any(v == f"PATH={MINIMAL_DEFAULTS['PATH']}" for v in value):
+            return len(value) == 1
+        # Prune other Compose defaults
         if key in MINIMAL_DEFAULTS:
-            # For dicts, check keys
             if isinstance(MINIMAL_DEFAULTS[key], dict) and isinstance(value, dict):
                 for k, v in MINIMAL_DEFAULTS[key].items():
                     if k in value and value[k] != v:
                         return False
-                # All subkeys match default
                 return True
             return value == MINIMAL_DEFAULTS[key]
         return False
