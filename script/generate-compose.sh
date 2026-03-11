@@ -86,8 +86,12 @@ for container in $containers; do
       docker run --rm -i "$DOCKER_IMAGE" decomposerize < "$container/docker-compose.yaml" > "$container/docker-run.sh"
       debug_echo "Generated $container/docker-run.sh"
     else
-      info_echo "docker run command for $container:"
-      docker run --rm -i "$DOCKER_IMAGE" decomposerize < "$container/docker-compose.yaml"
+      output=$(docker run --rm -i "$DOCKER_IMAGE" decomposerize < "$container/docker-compose.yaml")
+      if [ -z "$output" ]; then
+        info_echo "docker run command for $container: (no output from decomposerize)"
+      else
+        echo "$output"
+      fi
     fi
   else
     error_echo "$container/docker-compose.yaml has errors!"
