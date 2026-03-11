@@ -9,9 +9,13 @@ runs:
   steps:
     - shell: bash
       id: prep
+      env:
+        REGISTRY: ghcr.io
+        PLATFORMS: linux/amd64
+        BUILDX_CACHE: /tmp/.buildx-cache
       run: |
         OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
-        DOCKER_IMAGE=${OWNER}/${{ inputs.image_name }}
+        DOCKER_IMAGE=${{ env.REGISTRY }}/${OWNER}/${{ inputs.image_name }}
         echo "DEBUG: github.ref_name='${{ github.ref_name }}'"
         echo "DEBUG: GITHUB_REF_NAME='$GITHUB_REF_NAME'"
         echo "DEBUG: OWNER='$OWNER'"

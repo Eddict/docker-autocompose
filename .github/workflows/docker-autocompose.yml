@@ -1,4 +1,4 @@
-name: Build Multi Stage Docker Image
+name: Build and Push Docker Image (autocompose)
 on:
   push:
     branches-ignore:
@@ -7,12 +7,6 @@ on:
     - cron: '0 5 * * *'
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: autocompose
-  PLATFORMS: linux/amd64
-  # PLATFORMS: linux/amd64,linux/armhf,linux/arm64
-  BUILDX_CACHE: /tmp/.buildx-cache
 
 jobs:
   cr_build:
@@ -22,17 +16,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Prepare Container Registry (${{ env.REGISTRY }}) Metadata
+      - name: Prepare Container Registry Metadata
         id: prep
         uses: ./.github/actions/docker-metadata
         with:
-          image_name: ${{ env.IMAGE_NAME }}
+          image_name: autocompose
 
       - name: Set up QEMU
-        if: env.PLATFORMS != 'linux/amd64'
+        if: ${{ steps.prep.outputs.platforms != 'linux/amd64' }}
         uses: docker/setup-qemu-action@v4
         with:
-          platforms: ${{ env.PLATFORMS }}
+          platforms: ${{ steps.prep.outputs.platforms }}
 
       - name: Set up Docker Buildx
         id: buildx
@@ -41,7 +35,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v5
         with:
-          path: ${{ env.BUILDX_CACHE }}
+          path: ${{ steps.prep.outputs.buildx_cache }}
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -50,26 +44,26 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v4
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ steps.prep.outputs.registry }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
 
-      - name: Build and push to Container Registry (${{ env.REGISTRY }})
+      - name: Build and push to Container Registry
         id: docker_build
         uses: docker/build-push-action@v7
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./docker/autocompose/Dockerfile
-          platforms: ${{ env.PLATFORMS }}
+          platforms: ${{ steps.prep.outputs.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.REGISTRY }}/${{ steps.prep.outputs.tags }}
+          tags: ${{ steps.prep.outputs.tags }}
           labels: |
             org.opencontainers.image.title=${{ steps.prep.outputs.title }}
             org.opencontainers.image.version=${{ steps.prep.outputs.version }}
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
-          cache-from: type=local,src=${{ env.BUILDX_CACHE }}
-          cache-to: type=local,dest=${{ env.BUILDX_CACHE }},mode=max
+          cache-from: type=local,src=${{ steps.prep.outputs.buildx_cache }}
+          cache-to: type=local,dest=${{ steps.prep.outputs.buildx_cache }},mode=max
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
