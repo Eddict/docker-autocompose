@@ -33,18 +33,20 @@ jobs:
       - name: Set platforms from workflow inputs
         id: platforms
         run: |
-          PLATFORMS=""
+          PLATFORMS="linux/amd64"
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            [[ ${{ inputs.amd64 }} ]] && PLATFORMS+="linux/amd64,"
-            [[ ${{ inputs.armhf }} ]] && PLATFORMS+="linux/armhf,"
-            [[ ${{ inputs.arm64 }} ]] && PLATFORMS+="linux/arm64,"
-            PLATFORMS="${PLATFORMS%,}"
+            PLATFORMS=""
+            [[ ${{ github.event.inputs.amd64 }} ]] && PLATFORMS+="linux/amd64,"
+            [[ ${{ github.event.inputs.armhf }} ]] && PLATFORMS+="linux/armhf,"
+            [[ ${{ github.event.inputs.arm64 }} ]] && PLATFORMS+="linux/arm64,"
           fi
+          # Remove trailing comma if present
+          PLATFORMS="${PLATFORMS%,}"
           echo "PLATFORMS=$PLATFORMS"
           echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
 
-      - name: Prepare Container Registry Metadata
-        id: prep
+      - name: Call metadata preparation step
+        id: metadata
         uses: ./.github/actions/docker-metadata
         with:
           image_name: combined
@@ -57,7 +59,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v4
         with:
-          path: ${{ steps.prep.outputs.buildx_cache }}
+          path: ${{ steps.metadata.outputs.buildx_cache }}
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -66,7 +68,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v4
         with:
-          registry: ${{ steps.prep.outputs.registry }}
+          registry: ${{ steps.metadata.outputs.registry }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
 
@@ -77,15 +79,15 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./docker/combined/Dockerfile
-          platforms: ${{ steps.prep.outputs.platforms }}
+          platforms: ${{ steps.metadata.outputs.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.prep.outputs.tags }}
+          tags: ${{ steps.metadata.outputs.tags }}
           labels: |
-            org.opencontainers.image.title=${{ steps.prep.outputs.title }}
-            org.opencontainers.image.version=${{ steps.prep.outputs.version }}
-            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
-          cache-from: type=local,src=${{ steps.prep.outputs.buildx_cache }}
-          cache-to: type=local,dest=${{ steps.prep.outputs.buildx_cache }},mode=max
+            org.opencontainers.image.title=${{ steps.metadata.outputs.title }}
+            org.opencontainers.image.version=${{ steps.metadata.outputs.version }}
+            org.opencontainers.image.created=${{ steps.metadata.outputs.created }}
+          cache-from: type=local,src=${{ steps.metadata.outputs.buildx_cache }}
+          cache-to: type=local,dest=${{ steps.metadata.outputs.buildx_cache }},mode=max
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
