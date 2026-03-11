@@ -1,5 +1,4 @@
-name: Build and Push Decomposerize CLI Image
-
+name: Build and Push Docker decomposerize Image
 on:
   push:
     branches:

@@ -1,5 +1,4 @@
-name: Build and Push Combined Docker Image
-
+name: Build and Push Docker combined Image (autocompose + decomposerize)
 on:
   push:
     branches:

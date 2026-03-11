@@ -1,4 +1,4 @@
-name: Build and Push Docker Image (autocompose)
+name: Build and Push Docker autocompose Image
 on:
   push:
     branches-ignore:
