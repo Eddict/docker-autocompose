@@ -13,7 +13,7 @@ on:
       amd64:
         description: 'Enable linux/amd64 build'
         type: boolean
-        default: false
+        default: true
       armhf:
         description: 'Enable linux/armhf build'
         type: boolean
@@ -35,9 +35,9 @@ jobs:
         run: |
           PLATFORMS=""
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            [[ "${{ github.event.inputs.amd64 }}" == "true" ]] && PLATFORMS+="linux/amd64,"
-            [[ "${{ github.event.inputs.armhf }}" == "true" ]] && PLATFORMS+="linux/armhf,"
-            [[ "${{ github.event.inputs.arm64 }}" == "true" ]] && PLATFORMS+="linux/arm64,"
+            [[ ${{ github.event.inputs.amd64 }} ]] && PLATFORMS+="linux/amd64,"
+            [[ ${{ github.event.inputs.armhf }} ]] && PLATFORMS+="linux/armhf,"
+            [[ ${{ github.event.inputs.arm64 }} ]] && PLATFORMS+="linux/arm64,"
             PLATFORMS="${PLATFORMS%,}"
           fi
           echo "PLATFORMS=$PLATFORMS"
@@ -48,7 +48,7 @@ jobs:
         uses: ./.github/actions/docker-metadata
         with:
           image_name: combined
-          platforms: ${{ steps.platforms.outputs.platforms || 'linux/amd64' }}
+          platforms: ${{ steps.platforms.outputs.platforms }}
 
       - name: Set up Docker Buildx
         id: buildx
