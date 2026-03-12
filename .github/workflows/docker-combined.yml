@@ -59,33 +59,37 @@ jobs:
       #     echo "---- run immutable install ----"
       #     yarn install --immutable
 
-      - name: Debug Yarn v1 install and build on runner
-        if: 0 == 1
+      - name: Runner debug install and build
         working-directory: decomposerize
         run: |
           set -o pipefail
+
+          echo "=== tool versions ==="
           corepack enable
           corepack prepare yarn@1.22.19 --activate
+          node --version
           yarn --version
+          git --version || true
+          ssh -V || true
 
-          echo "---- repo root files ----"
+          echo "=== repo root listing ==="
           ls -la
 
-          echo "---- root package.json ----"
+          echo "=== root package.json ==="
           cat package.json
 
-          echo "---- yarn.lock head ----"
+          echo "=== yarn.lock head ==="
           head -n 40 yarn.lock
 
-          echo "---- run frozen install ----"
+          echo "=== run yarn install (frozen) ==="
           if ! yarn install --frozen-lockfile --non-interactive 2>&1 | tee yarn-install.log; then
-            echo "yarn install failed; showing last 200 lines"
+            echo "yarn install failed; last 200 lines:"
             tail -n 200 yarn-install.log
             grep -o 'p[0-9a-z]\{6\}' yarn-install.log | head -n1 | xargs -r -I{} yarn explain peer-requirements {}
             exit 1
           fi
 
-          echo "---- confirm CLI package manifest ----"
+          echo "=== confirm packages folder and CLI manifest ==="
           ls -la packages || true
           if [ -f packages/decomposerize/package.json ]; then
             echo "packages/decomposerize/package.json:"
@@ -94,10 +98,18 @@ jobs:
             echo "packages/decomposerize not found"
           fi
 
-          echo "---- run repository build (make build) ----"
+          echo "=== run repository build (make build) ==="
           if ! make build 2>&1 | tee make-build.log; then
-            echo "make build failed; showing last 200 lines"
+            echo "make build failed; last 200 lines:"
             tail -n 200 make-build.log
+            exit 1
+          fi
+
+          echo "=== try local npm global install (deterministic) ==="
+          if ! npm install -g ./packages/decomposerize 2>&1 | tee npm-install.log; then
+            echo "npm install failed; last 200 lines:"
+            tail -n 200 npm-install.log
+            ls -la /root/.npm/_logs || true
             exit 1
           fi
 
