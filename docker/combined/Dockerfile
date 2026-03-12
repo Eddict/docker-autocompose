@@ -43,8 +43,11 @@ COPY decomposerize/ ./decomposerize/
 # Build the project from the repo root as per contributing instructions
 WORKDIR /build/decomposerize
 
+
 # Build using the repository Makefile
-RUN make build
+RUN make build \
+  && echo '=== DEBUG: dist contents after build ===' \
+  && ls -la ./packages/decomposerize/dist || echo 'dist directory missing'
 
 # Install the CLI package globally (install from the package folder)
 # Adjust path if the CLI package lives elsewhere in the workspace
