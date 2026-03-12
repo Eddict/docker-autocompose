@@ -27,6 +27,8 @@ env:
   AMD64: true
   ARMHF: false
   ARM64: false
+  # https://docs.docker.com/build/building/variables/#buildkit_colors
+  BUILDKIT_COLORS: "run=123,20,245:error=yellow:cancel=blue:warning=white"
 
 jobs:
   build-and-push:
@@ -44,93 +46,9 @@ jobs:
           path: decomposerize
           fetch-depth: 0
 
-      # - name: Debug Yarn v3+ install on runner
-      #   working-directory: decomposerize
-      #   run: |
-      #     corepack enable
-      #     corepack prepare yarn@stable --activate
-      #     yarn --version
-      #     echo "---- ls decomposerize ----"
-      #     ls -la
-      #     echo "---- package.json ----"
-      #     cat package.json
-      #     echo "---- yarn.lock head ----"
-      #     head -n 40 yarn.lock
-      #     echo "---- run immutable install ----"
-      #     yarn install --immutable
-
-      # - name: Runner debug install and build
-      #   if: 0 == 1
-      #   working-directory: decomposerize
-      #   run: |
-      #     set -o pipefail
-
-      #     echo "=== show package.json deps referencing packages/decomposerize ==="
-      #     grep -R --line-number '"packages/decomposerize"' || true
-      #     echo "=== find git+ssh or ssh:// in package.json and yarn.lock ==="
-      #     grep -R --line-number -E 'git\+ssh:|ssh://' . || true
-      #     echo "=== find GitHub shorthand user/repo patterns in package.json ==="
-      #     grep -R --line-number -E '"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"' . || true
-      #     echo "=== show yarn.lock entries that mention git or ssh ==="
-      #     grep -nE 'git@|ssh://' yarn.lock || true
-
-      #     echo "=== tool versions ==="
-      #     corepack enable
-      #     corepack prepare yarn@1.22.19 --activate
-      #     node --version
-      #     yarn --version
-      #     git --version || true
-      #     ssh -V || true
-
-      #     echo "=== repo root listing ==="
-      #     ls -la
-
-      #     echo "=== root package.json ==="
-      #     cat package.json
-
-      #     echo "=== yarn.lock head ==="
-      #     head -n 40 yarn.lock
-
-      #     echo "=== run yarn install (frozen) ==="
-      #     if ! yarn install --frozen-lockfile --non-interactive 2>&1 | tee yarn-install.log; then
-      #       echo "yarn install failed; last 200 lines:"
-      #       tail -n 200 yarn-install.log
-      #       grep -o 'p[0-9a-z]\{6\}' yarn-install.log | head -n1 | xargs -r -I{} yarn explain peer-requirements {}
-      #       exit 1
-      #     fi
-
-      #     echo "=== confirm packages folder and CLI manifest ==="
-      #     ls -la packages || true
-      #     if [ -f packages/decomposerize/package.json ]; then
-      #       echo "packages/decomposerize/package.json:"
-      #       cat packages/decomposerize/package.json
-      #     else
-      #       echo "packages/decomposerize not found"
-      #     fi
-
-      #     echo "=== run repository build (make build) ==="
-      #     if ! make build 2>&1 | tee make-build.log; then
-      #       echo "make build failed; last 200 lines:"
-      #       tail -n 200 make-build.log
-      #       exit 1
-      #     fi
-
-      #     echo "=== try local npm global install (deterministic) ==="
-      #     if ! npm install -g ./packages/decomposerize 2>&1 | tee npm-install.log; then
-      #       echo "npm install failed; last 200 lines:"
-      #       tail -n 200 npm-install.log
-      #       ls -la /root/.npm/_logs || true
-      #       exit 1
-      #     fi
-
-      #     echo "Runner install and build succeeded"
-
       - name: Set platforms from workflow inputs
         id: platforms
         run: |
-          # echo "AMD64=${{ inputs.amd64 || env.AMD64 }}"
-          # echo "ARMHF=${{ inputs.armhf || env.ARMHF }}"
-          # echo "ARM64=${{ inputs.arm64 || env.ARM64 }}"
           PLATFORMS=""
           [[ ${{ inputs.amd64 || env.AMD64 }} == true ]] && PLATFORMS+="linux/amd64,"
           [[ ${{ inputs.armhf || env.ARMHF }} == true ]] && PLATFORMS+="linux/armhf,"

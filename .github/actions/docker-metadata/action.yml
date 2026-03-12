@@ -41,17 +41,11 @@ runs:
       run: |
         OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
         DOCKER_IMAGE=${{ env.REGISTRY }}/${OWNER}/${{ inputs.image_name }}
-        echo "DEBUG: github.ref_name='${{ github.ref_name }}'"
-        echo "DEBUG: GITHUB_REF_NAME='$GITHUB_REF_NAME'"
-        echo "DEBUG: OWNER='$OWNER'"
-        echo "DEBUG: DOCKER_IMAGE='$DOCKER_IMAGE'"
         if [ "${{ github.ref_name }}" == "main" ];then VERSION=latest;fi
         if [ "${{ github.ref_name }}" == "dev" ];then VERSION=mightly;fi
         if [ "${{ github.ref_name }}" == "dockserver" ];then VERSION=dockserver;fi
         if [ -z "$VERSION" ];then VERSION=${{ github.ref_name }};fi
-        echo "DEBUG: VERSION='$VERSION'"
         TAGS="${DOCKER_IMAGE}:${VERSION}"
-        echo "DEBUG: TAGS='$TAGS'"
         echo "tags=${TAGS}" >> $GITHUB_OUTPUT
         echo "title=${GITHUB_REPOSITORY}" >> $GITHUB_OUTPUT
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
