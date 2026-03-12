@@ -1,13 +1,12 @@
-
-name: Build and Push Docker combined Image (autocompose + decomposerize)
+name: Build and Push Docker compo-decompo Image (autocompose + decomposerize)
 on:
   push:
     paths:
       - 'src/autocompose.py'
       - 'docker/autocompose/**'
       - 'docker/decomposerize/**'
-      - 'docker/combined/**'
-      - '.github/workflows/docker-combined.yml'
+      - 'docker/compo-decompo/**'
+      - '.github/workflows/docker-compo-decompo.yml'
   workflow_dispatch:
     inputs:
       amd64:
@@ -98,7 +97,7 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
-          file: ./docker/combined/Dockerfile
+          file: ./docker/compo-decompo/Dockerfile
           platforms: ${{ steps.metadata.outputs.platforms }}
           push: ${{ github.event_name != 'pull_request' }}
           no-cache: true

@@ -4,7 +4,7 @@ This fork focuses on the combined Docker image, which provides both autocompose 
 ## Docker Usage
 This fork is focused on using prebuilt Docker images for autocompose and decomposerize. You do not need to build from source; simply pull and use the images as described below. For the original upstream image, see [Red5d/docker-autocompose](https://github.com/Red5d/docker-autocompose).
 
-### Combined Image
+### Combined Image (compo-decompo)
 Pull the combined image from GitHub (supports both x86 and ARM):
 ``` bash
 docker pull ghcr.io/eddict/docker-compo-decompo:latest
