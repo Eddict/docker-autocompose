@@ -36,8 +36,8 @@ RUN npm install -g ./packages/decomposerize \
   && npm cache clean --force
 
 # Final stage: runtime image without Node build tools
-ARG POETRY_VERSION=
 FROM python:3.13-alpine3.21
+ARG POETRY_VERSION
 LABEL org.opencontainers.image.source=https://github.com/Eddict/docker-autocompose
 
 # Install Poetry and runtime dependencies (including Node for decomposerize CLI)
