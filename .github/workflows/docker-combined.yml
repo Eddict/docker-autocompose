@@ -162,7 +162,7 @@ jobs:
         with:
           path: ${{ steps.metadata.outputs.buildx_cache }}
           # key: ${{ runner.os }}-buildx-${{ github.sha }}
-          key: ${{ runner.os }}-buildx-${{ hashFiles('decomposerize/yarn.lock') }}
+          key: ${{ runner.os }}-buildx-${{ hashFiles('decomposerize/yarn.lock', 'poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 
