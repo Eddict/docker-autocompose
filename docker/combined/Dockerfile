@@ -47,8 +47,17 @@ RUN apk add --no-cache python3 py3-pip nodejs \
   # && python3 -m pip install --no-cache-dir "poetry==1.8.1"
 
 # Copy decomposerize runtime files and binary from build stage
+
 COPY --from=build /usr/local/lib/node_modules/decomposerize /usr/local/lib/node_modules/decomposerize
 COPY --from=build /usr/local/bin/decomposerize /usr/local/bin/decomposerize
+
+# Debug: Inspect CLI entrypoint and dist contents before smoke test
+RUN echo '=== /usr/local/bin/decomposerize (head) ===' \
+  && head -n 10 /usr/local/bin/decomposerize \
+  && echo '=== /usr/local/lib/node_modules/decomposerize ===' \
+  && ls -la /usr/local/lib/node_modules/decomposerize \
+  && echo '=== /usr/local/lib/node_modules/decomposerize/dist ===' \
+  && ls -la /usr/local/lib/node_modules/decomposerize/dist
 
 # Optional smoke test to ensure CLI works
 RUN /usr/local/bin/decomposerize --version
