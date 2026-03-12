@@ -26,7 +26,7 @@ error_echo() {
 # Set DEBUG=true for debug output (default is false)
 DEBUG=${DEBUG:-false}
 # Set DOCKER_IMAGE to override the default image used for autocompose and decomposerize
-DOCKER_IMAGE=${DOCKER_IMAGE:-"ghcr.io/eddict/combined:latest"}
+DOCKER_IMAGE=${DOCKER_IMAGE:-"ghcr.io/eddict/docker-compo-decompo:latest"}
 # Set OUTPUT_SCRIPT=true to enable saving decomposerize output as a shell script (default is false)
 OUTPUT_SCRIPT=${OUTPUT_SCRIPT:-false}
 # Optional: control decomposerize script output and other settings

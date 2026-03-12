@@ -62,7 +62,7 @@ jobs:
         id: metadata
         uses: ./.github/actions/docker-metadata
         with:
-          image_name: combined
+          image_name: docker-compo-decompo
           platforms: ${{ steps.platforms.outputs.platforms }}
 
       - name: Set up QEMU

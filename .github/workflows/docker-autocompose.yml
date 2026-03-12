@@ -23,7 +23,7 @@ jobs:
         id: prep
         uses: ./.github/actions/docker-metadata
         with:
-          image_name: autocompose
+          image_name: docker-autocompose
 
       - name: Set up QEMU
         if: ${{ steps.prep.outputs.platforms != 'linux/amd64' }}
