@@ -64,6 +64,15 @@ jobs:
         run: |
           set -o pipefail
 
+          echo "=== show package.json deps referencing packages/decomposerize ==="
+          grep -R --line-number '"packages/decomposerize"' || true
+          echo "=== find git+ssh or ssh:// in package.json and yarn.lock ==="
+          grep -R --line-number -E 'git\+ssh:|ssh://' . || true
+          echo "=== find GitHub shorthand user/repo patterns in package.json ==="
+          grep -R --line-number -E '"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+"' . || true
+          echo "=== show yarn.lock entries that mention git or ssh ==="
+          grep -nE 'git@|ssh://' yarn.lock || true
+
           echo "=== tool versions ==="
           corepack enable
           corepack prepare yarn@1.22.19 --activate
