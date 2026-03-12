@@ -60,6 +60,7 @@ jobs:
       #     yarn install --immutable
 
       - name: Debug Yarn v1 install and build on runner
+        if: 0 == 1
         working-directory: decomposerize
         run: |
           set -o pipefail
