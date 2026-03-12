@@ -46,6 +46,7 @@ jobs:
       - name: Build and push Docker image
         uses: ./.github/workflows/docker-build-template.yml
         with:
+          checkout: false
           amd64: ${{ inputs.amd64 }}
           armhf: ${{ inputs.armhf }}
           arm64: ${{ inputs.arm64 }}
