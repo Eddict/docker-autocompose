@@ -44,11 +44,26 @@ jobs:
           path: decomposerize
           fetch-depth: 0
 
-      - name: Debug Yarn install on runner
+      # - name: Debug Yarn v3+ install on runner
+      #   working-directory: decomposerize
+      #   run: |
+      #     corepack enable
+      #     corepack prepare yarn@stable --activate
+      #     yarn --version
+      #     echo "---- ls decomposerize ----"
+      #     ls -la
+      #     echo "---- package.json ----"
+      #     cat package.json
+      #     echo "---- yarn.lock head ----"
+      #     head -n 40 yarn.lock
+      #     echo "---- run immutable install ----"
+      #     yarn install --immutable
+
+      - name: Debug Yarn v1 install on runner
         working-directory: decomposerize
         run: |
           corepack enable
-          corepack prepare yarn@stable --activate
+          corepack prepare yarn@1.22.19 --activate
           yarn --version
           echo "---- ls decomposerize ----"
           ls -la
@@ -56,8 +71,16 @@ jobs:
           cat package.json
           echo "---- yarn.lock head ----"
           head -n 40 yarn.lock
-          echo "---- run immutable install ----"
-          yarn install --immutable
+          echo "---- run frozen install ----"
+          set -o pipefail
+          if ! yarn install --frozen-lockfile --non-interactive 2>&1 | tee yarn-install.log; then
+            echo "yarn install failed; showing peer-requirements summary"
+            # show the last 200 lines to capture the p-prefixed hash
+            tail -n 200 yarn-install.log
+            # if a p-prefixed hash appears in the log, run explain (best-effort)
+            grep -o 'p[0-9a-z]\{6\}' yarn-install.log | head -n1 | xargs -r -I{} yarn explain peer-requirements {}
+            exit 1
+          fi
 
       - name: Set platforms from workflow inputs
         id: platforms
