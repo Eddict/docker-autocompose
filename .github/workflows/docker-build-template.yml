@@ -33,11 +33,9 @@ on:
         required: false
         type: string
         default: ''
-
-env:
-  AMD64: true
-  ARMHF: false
-  ARM64: false
+    secrets:
+      CR_PAT:
+        required: true
 
 jobs:
   build-and-push:
@@ -57,6 +55,9 @@ jobs:
         env:
           REGISTRY: ghcr.io
           BUILDX_CACHE: /tmp/.buildx-cache
+          AMD64: true
+          ARMHF: false
+          ARM64: false
         run: |
           PLATFORMS=""
           [[ "${{ inputs.amd64 || env.AMD64 }}" == "true" ]] && PLATFORMS+="linux/amd64,"

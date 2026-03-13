@@ -62,3 +62,5 @@ jobs:
       dockerfile: ./docker/compo-decompo/Dockerfile
       build_args: POETRY_VERSION=1.8.5
       cache_key: ${{ needs.init.outputs.cache_key }}
+    secrets:
+      CR_PAT: ${{ secrets.CR_PAT }}
