@@ -7,9 +7,22 @@ on:
       - '.github/workflows/docker-autocompose.yml'
       - 'pyproject.toml'
       - 'README.md'
-  schedule:
-    - cron: '0 5 * * *'
+  # schedule:
+  #   - cron: '0 5 * * *'
   workflow_dispatch:
+    inputs:
+      amd64:
+        description: 'Enable linux/amd64 build'
+        type: boolean
+        default: true
+      armhf:
+        description: 'Enable linux/armhf build'
+        type: boolean
+        default: false
+      arm64:
+        description: 'Enable linux/arm64 build'
+        type: boolean
+        default: false
 
 jobs:
   cr_build:
