@@ -66,7 +66,7 @@ jobs:
           else
             GENERATED_KEY="${{ format('{0}-buildx-{1}', runner.os, github.sha) }}"
           fi
-          echo "CACHE_KEY=$GENERATED_KEY" >> $GITHUB_OUTPUT
+          echo "cache_key=$GENERATED_KEY" >> $GITHUB_OUTPUT
 
       - name: Prepare Docker Metadata (inline)
         id: metadata
@@ -111,7 +111,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ steps.metadata.outputs.buildx_cache }}
-          key: ${{ steps.metadata.outputs.cache_key }}
+          key: ${{ steps.set-cache-key.outputs.cache_key }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 
