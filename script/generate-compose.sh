@@ -111,7 +111,7 @@ for container in $all_containers; do
   debug_echo "Container $container created at: $c_created"
   container_created[$container]="$c_created"
   # Get volumes used by this container
-  mounts=$(docker inspect --format '{{range .Mounts}}{{if eq .Type \"volume\"}}{{.Name}}\\n{{end}}{{end}}' "$container")
+  mounts=$(docker inspect --format '{{range .Mounts}}{{if eq .Type "volume"}}{{.Name}}{{end}}{{end}}' "$container")
   debug_echo "Container $container uses volumes: $mounts"
   for v in $mounts; do
     debug_echo "Volume $v used by container $container"
