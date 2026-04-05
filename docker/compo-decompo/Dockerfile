@@ -36,7 +36,7 @@ ARG POETRY_VERSION
 LABEL org.opencontainers.image.source=https://github.com/Eddict/docker-compo-decompo
 
 # Install Poetry and runtime dependencies (including Node for decomposerize CLI)
-RUN apk add --no-cache python3 py3-pip nodejs build-base \
+RUN apk add --no-cache python3 py3-pip nodejs build-base libffi-dev py3-cffi \
   && python3 -m pip install --no-cache-dir poetry${POETRY_VERSION:+==${POETRY_VERSION}}
 
 COPY --from=build /usr/local/lib/node_modules/decomposerize /usr/local/lib/node_modules/decomposerize
