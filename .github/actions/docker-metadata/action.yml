@@ -6,10 +6,13 @@ inputs:
     required: true
   linux_amd64:
     type: boolean
+    default: true
   linux_armhf:
     type: boolean
+    default: false
   linux_arm64:
     type: boolean
+    default: false
 outputs:
   tags:
     description: "Docker image tags"
@@ -42,9 +45,13 @@ runs:
         BUILDX_CACHE: /tmp/.buildx-cache
       run: |
         PLATFORMS=""
-        [[ ${{ inputs.linux_amd64 }} == true ]] && PLATFORMS+="linux/amd64,"
-        [[ ${{ inputs.linux_armhf }} == true ]] && PLATFORMS+="linux/armhf,"
-        [[ ${{ inputs.linux_arm64 }} == true ]] && PLATFORMS+="linux/arm64,"
+        amd64="${{ inputs.linux_amd64 || 'true' }}"
+        armhf="${{ inputs.linux_armhf || 'false' }}"
+        arm64="${{ inputs.linux_arm64 || 'false' }}"
+
+        if [[ "$amd64" == "true" ]]; then PLATFORMS+="linux/amd64,"; fi
+        if [[ "$armhf" == "true" ]]; then PLATFORMS+="linux/armhf,"; fi
+        if [[ "$arm64" == "true" ]]; then PLATFORMS+="linux/arm64,"; fi
         # Remove trailing comma if present
         PLATFORMS="${PLATFORMS%,}"
         # echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
